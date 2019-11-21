@@ -5,7 +5,7 @@
 <style>
 a{text-align: center;}
 </style>
-<ul class="sidebar navbar-nav bg-dark" >
+<ul class="nav flex-column bg-dark">
 	<li class="nav-item "  >
 	<a class="nav-link list-group-item-info" href="/admin">
 			<i class="fas fa-fw fa-tachometer-alt"></i> <span>后台首页</span>

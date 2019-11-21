@@ -9,8 +9,13 @@
 		http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-4.3.xsd
 		http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-4.3.xsd">
 
-
-
+	<!-- 加载redis.xml配置文件 -->
+	<import resource="classpath:redis.xml"/>
+	<!-- 加载kafka监听的配置文件 -->
+	<import resource="classpath:consumer.xml"/>
+	<!-- 加载es配置文件 -->
+	<import resource="classpath:es.xml"/>
+	
 	<!-- 1、注解扫描器 -->
 	<context:component-scan base-package="com.liujian.cms" >
 		<!-- 排除要要扫描的controller -->

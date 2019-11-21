@@ -165,10 +165,10 @@ public class MyController {
 
 		User user = (User) session.getAttribute("user");
 		article.setUserId(user.getId());// 文章作者
-//		article.setContentType(ArticleEnum.HTML.getCode());//普通文章
-		PageInfo<ArticleWithBLOBs> info = articleService.selects(article, 1, 100);
+		article.setContentType(ArticleEnum.HTML.getCode());//普通文章
+		PageInfo<ArticleWithBLOBs> info = articleService.selects(article, page, pageSize);
 
-		String pages = PageUtil.page(page, info.getPages(), "/my/articles", pageSize);
+		String pages = PageUtil.page(page, info.getPages(), "/my/articles?terms="+article.getTerms()+"&status="+article.getStatus()+"&title="+article.getTitle(), pageSize);
 
 		model.addAttribute("articles", info.getList());
 		model.addAttribute("article", article);
@@ -260,6 +260,7 @@ public class MyController {
 		article.setHot(0);// 默认非热门
 		article.setCreated(new Date());
 		article.setUpdated(new Date());
+		article.setContentType(ArticleEnum.HTML.getCode());//文章类型
 		// 保存文章
 		return articleService.insertSelective(article) > 0;
 

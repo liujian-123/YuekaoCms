@@ -28,6 +28,10 @@
    function addArticle(sid){
 		$("#content-wrapper").load("/admin/special/select?sid="+sid)
 	}
+   //修改专题
+   function updArticle(sid){
+	   $("#content-wrapper").load("/admin/special/update?sid="+sid)
+   }
 
 </script>
 </head>
@@ -39,6 +43,7 @@
 			<tr>
 				<td>序号</td>
 				<td>专题标题</td>
+				<td>专题摘要</td>
 				<td>专题文章</td>
 				<td>操作</td>
 				
@@ -48,10 +53,11 @@
 				<tr>
 					<td>${index.index+1 }</td>
 					<td>${s.title }</td>
+					<td>${s.abstracts }</td>
 					<td>${s.count }</td>
 					<td>
 					<button class="btn btn-info" onclick="addArticle(${s.id})">增加文章</button>
-					<button class="btn btn-warning">修改专题</button>
+					<button class="btn btn-warning" onclick="updArticle(${s.id})">修改专题</button>
 					
 					</td>
 					

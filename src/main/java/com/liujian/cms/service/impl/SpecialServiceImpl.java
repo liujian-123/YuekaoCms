@@ -45,4 +45,17 @@ public class SpecialServiceImpl implements SpecialService {
 		return specialMapper.select(sid);
 	}
 
+	/* (non Javadoc) 
+	 * @Title: getByid
+	 * @Description: TODO
+	 * @param sid
+	 * @return 
+	 * @see com.liujian.cms.service.SpecialService#getByid(java.lang.Integer) 
+	 */
+	@Override
+	public Special getByid(Integer sid) {
+		// TODO Auto-generated method stub
+		return specialMapper.getByid(sid);
+	}
+
 }

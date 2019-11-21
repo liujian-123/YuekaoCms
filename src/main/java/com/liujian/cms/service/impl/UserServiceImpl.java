@@ -61,7 +61,7 @@ public class UserServiceImpl implements UserService {
 			throw new CMSException("两次密码不一致");
 		}
 
-		//对密码进行加密
+		//采用md5对数据库的密码字段进行加密
 		userVO.setPassword(Md5Util.md5Encoding(userVO.getPassword()));
 		
 		//注册用户默认值

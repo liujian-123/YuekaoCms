@@ -13,13 +13,12 @@
 
 <script type="text/javascript">
 function add(){
-	$.post("/admin/special/add",$("#form1").serialize(),function(flag){
+	$.post("/admin/special/updatespecial",$("#form1").serialize(),function(flag){
 		if(flag){
-			localtion="/admin/special/selects";
-			alert("增加成功")
+			alert("修改成功")
 		}else{
 			$("#title").val("专题必须有值");
-			alert("增加失败")
+			alert("修改失败")
 			
 		}
 	})
@@ -36,21 +35,22 @@ function add(){
 	<div class="container">
       <h1 align="center">增加专题</h1>
 		<form id="form1">
+			<input type="hidden"  name="id" value="${s.id }">
 			<div class="form-group">
 				<label for="title">标题</label> <input type="text" name="title"
-					id="title" class="form-control">
+					id="title" class="form-control" value="${s.title }">
 
 			</div>
 
 			<div class="form-group">
 				<label for="title">专题摘要</label>
-				<textarea rows="5" cols="20" name="abstracts" class="form-control"></textarea>
+				<textarea rows="5" cols="20" name="abstracts" class="form-control" >${s.abstracts}</textarea>
 
 			</div>
 
 
 			<div class="form-group">
-				<button type="button" class="btn btn-info" onclick="add()">增加</button>
+				<button type="button" class="btn btn-info" onclick="add()">修改</button>
 
 			</div>
 

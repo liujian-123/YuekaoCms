@@ -2,15 +2,21 @@ package com.liujian.cms.controller;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import javax.annotation.Resource;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.elasticsearch.core.ElasticsearchTemplate;
+import org.springframework.data.elasticsearch.core.aggregation.AggregatedPage;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import com.liujian.cms.dao.ArticleRepository;
 import com.liujian.cms.domain.Article;
 import com.liujian.cms.domain.ArticleWithBLOBs;
 import com.liujian.cms.domain.Category;
@@ -21,6 +27,7 @@ import com.liujian.cms.service.CategoryService;
 import com.liujian.cms.service.ChannelService;
 import com.liujian.cms.service.SpecialService;
 import com.liujian.cms.util.ArticleEnum;
+import com.liujian.cms.util.ESUtils;
 import com.liujian.cms.util.PageUtil;
 import com.liujian.cms.vo.ArticleVO;
 import com.liujian.utils.DateUtil;
@@ -49,6 +56,33 @@ public class IndexController {
 	private ArticleService articleService;
 	@Resource
 	private SpecialService specialService;
+	@Resource
+	private RedisTemplate redisTemplate;	
+	//注入es仓库
+	@Autowired
+	private ArticleRepository articleRepository;
+	//es模板
+	@Autowired
+	private ElasticsearchTemplate elasticsearchTemplate;
+	/**
+	 * es搜索的
+	 */
+	@RequestMapping("search")
+	public String search(String key,Model model,@RequestParam(defaultValue = "1") Integer page,
+			@RequestParam(defaultValue = "2") Integer pageSize) {
+		long start = System.currentTimeMillis();
+		//高亮显示
+		AggregatedPage<?> selectObjects = ESUtils.selectObjects(elasticsearchTemplate, Article.class, page, pageSize,new String[] {"title"}, key);
+		List<?> list = selectObjects.getContent();
+		System.out.println(key);
+		long end = System.currentTimeMillis();
+		System.err.println("搜索耗时"+(end-start));
+		model.addAttribute("hotArticles", list);
+		model.addAttribute("key", key);
+		String pages = PageUtil.page(page, (int)selectObjects.getTotalElements(), "/search?key="+key, pageSize);
+		model.addAttribute("pages", pages);
+		return "index/index";
+	}
 	/**
 	 * 
 	 * @Title: index
@@ -56,7 +90,6 @@ public class IndexController {
 	 * @return
 	 * @return: String
 	 */
-
 	@RequestMapping(value = { "", "/", "index" })
 	public String index(Model model, Article article, @RequestParam(defaultValue = "1") Integer page,
 			@RequestParam(defaultValue = "5") Integer pageSize) {
@@ -123,13 +156,27 @@ public class IndexController {
 			public void run() {
 				// 4 如果栏目为空则默认查询热点文章
 				if (null == article.getChannelId()) {
-
 					article.setHot(1);// 热点文章
 					article.setContentType(ArticleEnum.HTML.getCode());
-					PageInfo<ArticleWithBLOBs> info = articleService.selects(article, page, pageSize);
-					String pages = PageUtil.page(page, info.getPages(), "/", pageSize);
-					model.addAttribute("hotArticles", info.getList());
-					model.addAttribute("pages", pages);
+					//从mysql中查询数据
+					//用Redis优化热点文章的步骤
+					
+					//1.从Redis中查询热点文章用string类型
+					List<ArticleWithBLOBs> redisArticleWithBLOBs = (List<ArticleWithBLOBs>) redisTemplate.opsForValue().get("hot_articles");
+					//2.判断Redis是否有
+					if (redisArticleWithBLOBs == null) {
+						System.err.println("数据库中查询热点文章");
+						//3.如果redis中没有,把从mysql中查的数据保存在redis(设置过期时间,1小时,或一天),反回给页面
+						//4.先从mysql中查询前10条热点文章
+						PageInfo<ArticleWithBLOBs> info = articleService.selects(article, page, pageSize);
+						redisTemplate.opsForValue().set("hot_articles", info.getList(), 1,TimeUnit.HOURS);
+						String pages = PageUtil.page(page, info.getPages(), "/", pageSize);
+						model.addAttribute("hotArticles", info.getList());
+						model.addAttribute("pages", pages);
+					}else {
+						System.err.println("从reids中查询数据...");
+						model.addAttribute("hotArticles", redisArticleWithBLOBs);
+					}
 				}
 
 			}
@@ -148,7 +195,7 @@ public class IndexController {
 				article2.setHot(1);
 				article2.setContentType(ArticleEnum.HTML.getCode());
 				article2.setCreated(DateUtil.getDateByBefore());// 24小时之前的时间
-
+				System.out.println("24xiaoshi+++++++++++++++++++"+article2.getCreated());
 				PageInfo<ArticleWithBLOBs> info = articleService.selects(article2, page, pageSize);
 				// 封装查询结果集
 				model.addAttribute("article24", info.getList());

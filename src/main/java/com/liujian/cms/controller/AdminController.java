@@ -20,6 +20,7 @@ import com.liujian.cms.service.ArticleService;
 import com.liujian.cms.service.SpecialService;
 import com.liujian.cms.service.UserService;
 import com.liujian.cms.util.PageUtil;
+import com.liujian.utils.StringUtil;
 import com.github.pagehelper.PageInfo;
 /**
  * 
@@ -40,6 +41,7 @@ public class AdminController {
 	
 	@Resource
 	private SpecialService specialService;
+	
 	
 	/**
 	 * 
@@ -68,6 +70,12 @@ public class AdminController {
 		model.addAttribute("specials", list);
 		return "admin/specials";
 	}
+	
+	
+	
+	
+	
+	
 	/**
 	 * 
 	 * @Title: add 
@@ -92,9 +100,16 @@ public class AdminController {
 	 */
 	@ResponseBody
 	@PostMapping("special/add")
-	public boolean add(Special special) {
+	public boolean add(Special special,Model model) {
 		
-		return specialService.insert(special)>0;
+		if (StringUtil.hasText(special.getTitle())) {
+			return specialService.insert(special)>0;
+		}else {
+//			model.addAttribute("error", "专题标题必须有值");
+			return false;
+		}
+		
+		
 	}
 	/**
 	 *  
@@ -123,6 +138,34 @@ public class AdminController {
 	public boolean addArticle(Integer sid,Integer aid) {
 		return specialService.insertSpecialArticle(sid, aid)>0;
 	}
+	
+	/** 
+	 * @Title: update 
+	 * @Description: 根据前台传过来的值获取到某一个专题
+	 * @param model
+	 * @param sid
+	 * @return
+	 * @return: String
+	 */
+	@GetMapping("special/update")
+	public String update(Model model ,Integer sid) {
+		Special special = specialService.getByid(sid);
+		model.addAttribute("s", special);
+		return "admin/updatespecial";
+	}
+	/** 
+	 * @Title: updatespecial 
+	 * @Description: 修改专题
+	 * @param special
+	 * @return
+	 * @return: boolean
+	 */
+	@ResponseBody
+	@PostMapping("/special/updatespecial")
+	public boolean updatespecial(Special special) {
+		return specialService.update(special)>0;
+	}
+	
 	
 	/**
 	 *  
@@ -202,6 +245,7 @@ public class AdminController {
 		PageInfo<User> info = userService.selects(username, page, pageSize);
 		//调用分页工具
 		String pages = PageUtil.page(page, info.getPages(), "/admin/users?username="+username, pageSize);
+		
 		model.addAttribute("users", info.getList());
 		model.addAttribute("username", username);
 		model.addAttribute("pages", pages);

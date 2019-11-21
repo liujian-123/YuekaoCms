@@ -54,5 +54,13 @@ public interface SpecialMapper {
 	 * @return: Special
 	 */
 	Special select(Integer sid);
+	/** 
+	 * @Title: getByid 
+	 * @Description: TODO
+	 * @param sid
+	 * @return
+	 * @return: Special
+	 */
+	Special getByid(Integer sid);
 	
 }

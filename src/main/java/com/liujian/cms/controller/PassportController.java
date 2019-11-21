@@ -1,9 +1,12 @@
 package com.liujian.cms.controller;
 
+import java.util.concurrent.TimeUnit;
+
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -28,7 +31,8 @@ import com.liujian.cms.vo.UserVO;
 @Controller
 public class PassportController {
 	
-	
+	@Resource
+	private RedisTemplate redisTemplate;
 	@Resource
 	private UserService userService;
    
@@ -108,12 +112,21 @@ public class PassportController {
 			 //登陆成功
 			 User u = userService.login(user);
 			 
-			 if(u.getRole().equals("0")) {//普通用户
-				 session.setAttribute("user", u);//存入session
-			     return "redirect:/my/index";//进入个人中心
-			 }
-			 session.setAttribute("admin", u);//存入session
-			 return "redirect:/admin";//进入管理员页面
+			 String string = u.toString();
+			 System.out.println(string);
+			 redisTemplate.opsForValue().set("log_user", string);
+			 
+			 if (u.getLocked()==0) {
+				 if(u.getRole().equals("0")) {//普通用户
+					 session.setAttribute("user", u);//存入session
+				     return "redirect:/my/index";//进入个人中心
+				 }
+				 session.setAttribute("admin", u);//存入session
+				 return "redirect:/admin";//进入管理员页面
+			}else {
+				model.addAttribute("error","用户已被停用");
+				return "passport/login";
+			}
 		}catch (CMSException e) {
 			e.printStackTrace();
 			model.addAttribute("error",e.getMessage());

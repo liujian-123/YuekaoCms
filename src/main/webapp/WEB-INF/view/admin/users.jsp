@@ -68,18 +68,7 @@
 		<div>${pages }</div>
 
 </div>
-
-<div class="modal-dialog" id="test">
-aaaa
-
-</div>
-
-
 <script type="text/javascript">
-		
-		
-		
-		
 //改变用户状态
 function update(id,obj){
 	//0:正常 1:停用

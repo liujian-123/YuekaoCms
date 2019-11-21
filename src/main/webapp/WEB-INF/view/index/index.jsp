@@ -223,13 +223,13 @@
 							<strong>24小时热文</strong>
 						</div>
 						<div class="card-body">
-							<c:forEach items="${article24 }" var="a">
+							<c:forEach items="${article24}" var="s">
 								<div class="media">
-									<img src="/pic/${a.picture }" class="mr-3" alt="..."
+									<img src="/pic/${s.picture }" class="mr-3" alt="..."
 										width="60px" height="60px">
 									<div class="media-body">
 										<h6>
-											<a href="/select?id=${a.id }" target="blank">${a.title }</a>
+											<a href="/select?id=${s.id }" target="blank">${s.title }</a>
 										</h6>
 									</div>
 								</div>

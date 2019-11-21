@@ -1,21 +1,31 @@
 package com.liujian.cms.domain;
 
 import java.io.Serializable;
+
 import java.util.Date;
 import java.util.List;
 
-import com.liujian.cms.vo.ArticleVO;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.elasticsearch.annotations.Document;
+import org.springframework.data.elasticsearch.annotations.Field;
+import org.springframework.data.elasticsearch.annotations.FieldType;
 
+import com.liujian.cms.vo.ArticleVO;
+//@Document(索引信息,文档类型)
+@Document(indexName = "cms_articles",type = "Article")
 public class Article  implements Serializable{
     /**
 	 * @fieldName: serialVersionUID
 	 * @fieldType: long
 	 * @Description: TODO
 	 */
-	private static final long serialVersionUID = 1L;
-
+	@Id
 	private Integer id;
-
+	//1.是否索引:是否建立索引
+	//2.分词方式:使用ik分词器的智能分词方式
+	//3.是否存储到索引库中
+	//4.搜索框的词,是否分词
+	@Field(index = true,analyzer = "ik_smart",searchAnalyzer = "ik_smart",type = FieldType.text)
     private String title;
 
     private String picture;
@@ -30,13 +40,22 @@ public class Article  implements Serializable{
     
     private List<ArticleVO> voList;//图片集
     
+    private String terms;//文章标签
     
     private  String original;//文章来源
     private String keywords;//关键词
     
     
 
-    public String getOriginal() {
+    public String getTerms() {
+		return terms;
+	}
+
+	public void setTerms(String terms) {
+		this.terms = terms;
+	}
+
+	public String getOriginal() {
 		return original;
 	}
 

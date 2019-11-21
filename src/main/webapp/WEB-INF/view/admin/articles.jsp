@@ -75,10 +75,7 @@
 			
 		</div>
 		
-		<div>
-		
-		 <button id="btn_add" type="button">test</button>
-		</div>
+	
 
 	</div>
 	<script type="text/javascript">

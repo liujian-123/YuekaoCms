@@ -33,7 +33,10 @@
 	<select id="select" resultMap="BaseResultMap">
 		select * from cms_special s LEFT JOIN cms_special_article a on s.id =a.sid
 		where id=#{sid}
-
+	</select>
+	
+	<select id="getByid" resultMap="BaseResultMap">
+		select * from cms_special where id=#{sid}
 	</select>
 
 	<insert id="insert">
